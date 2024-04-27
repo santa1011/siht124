@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Code Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  </head>
+  <body style="background-color: rgb(255, 255, 255)">
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #02ddd9;
+      }
+      .checkbox-container {
+        display: flex;
+        justify-content: space-around;
+      }
+      #qrcode {
+        display: block;
+        margin-left: 600px;
+        margin-right: auto;
+        width: 40%;
+      }
+    </style>
+
+    <h2>KGCARE</h2>
+
+    <table id="medicationTable">
+      <thead>
+        <tr>
+          <th>Name of Medicine</th>
+          <th>Quantity</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be dynamically added here -->
+      </tbody>
+    </table>
+
+    <button onclick="addRow()">Add Row</button>
+    <button onclick="generateQR()">Generate QR Code</button>
+    <div id="qrcode"></div>
+
+    <script>
+      var qr = new QRCode(document.getElementById("qrcode"));
+
+      function generateQR() {
+        var table = document
+          .getElementById("medicationTable")
+          .getElementsByTagName("tbody")[0];
+        var rows = table.getElementsByTagName("tr");
+        var qrContent = "";
+
+        for (var i = 0; i < rows.length; i++) {
+          var cells = rows[i].getElementsByTagName("td");
+          if (cells.length === 3) {
+            var medicineName = cells[0].querySelector(
+              'input[name="medicineName[]"]'
+            ).value;
+            var quantity = cells[1].querySelector(
+              'input[name="quantity[]"]'
+            ).value;
+            var times = cells[2].querySelectorAll(
+              'input[name="timeOfDay[]"]:checked'
+            );
+
+            qrContent += medicineName + " - " + quantity + "\n";
+            qrContent += "Times: ";
+            for (var j = 0; j < times.length; j++) {
+              qrContent += times[j].value + " ";
+            }
+            qrContent += "\n";
+          }
+        }
+
+        qr.clear();
+        qr.makeCode(qrContent);
+      }
+
+      function addRow() {
+        var table = document
+          .getElementById("medicationTable")
+          .getElementsByTagName("tbody")[0];
+        var newRow = table.insertRow();
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        cell1.innerHTML = '<input type="text" name="medicineName[]">';
+        cell2.innerHTML = '<input type="text" name="quantity[]">';
+        cell3.innerHTML = `
+        <div class="checkbox-container">
+          <label><input type="checkbox" name="timeOfDay[]" value="morning"> Morning</label>
+          <label><input type="checkbox" name="timeOfDay[]" value="afternoon"> Afternoon</label>
+          <label><input type="checkbox" name="timeOfDay[]" value="evening"> Evening</label>
+          <label><input type="checkbox" name="timeOfDay[]" value="night"> Night</label>
+        </div>
+      `;
+      }
+    </script>
+    <script src="script420.js" defer></script>
+  </body>
+</html>
